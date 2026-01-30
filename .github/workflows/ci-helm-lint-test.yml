@@ -4,13 +4,13 @@ on:
   pull_request:
     paths:
       - 'charts/**'
-  push:
-    branches:
-      - 'feature/**'
-      - 'fix/**'
-      - 'chore/**'
-    paths:
-      - 'charts/**'
+  # push:
+  #   branches:
+  #     - 'feature/**'
+  #     - 'fix/**'
+  #     - 'chore/**'
+  #   paths:
+  #     - 'charts/**'
 
 permissions:
   contents: read
