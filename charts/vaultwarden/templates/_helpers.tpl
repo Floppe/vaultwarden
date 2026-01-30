@@ -51,21 +51,44 @@ app.kubernetes.io/name: {{ include "vaultwarden.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{- define "dbPort" -}}
-{{- if .Values.database.port }}
-{{- printf "%s%s" ":" .Values.database.port }}
-{{- else }}
-{{- printf "%s" "" }}
-{{- end }}
+{{/*
+DB scheme based on type; "default" means use SQLite / no external DB
+*/}}
+{{- define "vaultwarden.db.scheme" -}}
+{{- $t := .Values.database.type | default "default" -}}
+{{- if eq $t "mysql" -}}
+mysql
+{{- else if eq $t "postgresql" -}}
+postgresql
+{{- else -}}
+default
+{{- end -}}
 {{- end }}
 
 {{/*
-Return the database string
+Default port for the chosen DB type
 */}}
-{{ define "dbString" }}
-{{- $var := print .Values.database.type "://" .Values.database.username ":" .Values.database.password "@" .Values.database.host (include "dbPort" . ) "/" .Values.database.dbName }}
-{{- printf "%s" $var }}
+{{- define "vaultwarden.db.defaultPort" -}}
+{{- $s := include "vaultwarden.db.scheme" . -}}
+{{- if eq $s "mysql" -}}
+3306
+{{- else if eq $s "postgresql" -}}
+5432
+{{- else -}}{{- "" -}}
 {{- end -}}
+{{- end }}
+
+{{/*
+Effective port: user-provided or type default
+*/}}
+{{- define "vaultwarden.db.port" -}}
+{{- $p := .Values.database.port -}}
+{{- if or (and (kindIs "string" $p) (ne $p "")) (and (kindIs "int" $p) (ne $p 0)) -}}
+{{ $p }}
+{{- else -}}
+{{ include "vaultwarden.db.defaultPort" . }}
+{{- end -}}
+{{- end }}
 
 {{/*
 Return the appropriate apiVersion for podDisruptionBudget.

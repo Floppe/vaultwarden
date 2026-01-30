@@ -110,44 +110,45 @@ containers:
             name: {{ default (include "vaultwarden.fullname" .) .Values.pushNotifications.existingSecret }}
             key: {{ default "PUSH_INSTALLATION_KEY" .Values.pushNotifications.installationKey.existingSecretKey }}
       {{- end }}
-      {{- if and ( eq .Values.database.type "postgresql") .Values.database.existingSecret (not .Values.database.existingSecretKey)}}
-      - name: DATABASE_URL
-        value: "postgresql://{{ .Values.database.host }}"
-      - name: PGPORT
-        value: {{ .Values.database.port | quote }}
-      - name: PGDATABASE
-        value: {{ .Values.database.dbName | quote }}
-      - name: PGUSER
-        {{- if .Values.database.existingSecretUserKey}}
-        valueFrom:
-          secretKeyRef:
-            name: {{ .Values.database.existingSecret | quote }}
-            key: {{ .Values.database.existingSecretUserKey | quote }}
+      {{- $db := .Values.database | default dict -}}
+      {{- $scheme := include "vaultwarden.db.scheme" . -}}
+      {{- if ne $scheme "default" }}
+        {{- if $db.uriOverride }}
+        - name: DATABASE_URL
+          value: {{ $db.uriOverride | quote }}
+        {{- else if and $db.existingSecret $db.existingSecretKey }}
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ $db.existingSecret | quote }}
+              key: {{ $db.existingSecretKey | quote }}
         {{- else }}
-        value: {{ .Values.database.username | quote }}
-        {{- end }}
-      - name: PGPASSWORD
-        {{- if .Values.database.existingSecretPasswordKey}}
-        valueFrom:
-          secretKeyRef:
-            name: {{ .Values.database.existingSecret | quote }}
-            key: {{ .Values.database.existingSecretPasswordKey | quote }}
-        {{- else }}
-        value: {{ .Values.database.password }}
-        {{- end }}
-      {{- else if ne "default" .Values.database.type }}
-      - name: DATABASE_URL
-        {{- if .Values.database.existingSecret }}
-        valueFrom:
-          secretKeyRef:
-            name: {{ .Values.database.existingSecret }}
-            key: {{ .Values.database.existingSecretKey }}
-        {{- else }}
-        {{- if .Values.database.uriOverride }}
-        value: {{ .Values.database.uriOverride }}
-        {{- else }}
-        value: {{ include "dbString" . | quote }}
-        {{- end }}
+        - name: DB_USER
+          {{- if and $db.existingSecret $db.existingSecretUserKey }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $db.existingSecret | default (include "vaultwarden.fullname" .) | quote }}
+              key: {{ $db.existingSecretUserKey | quote }}
+          {{- else }}
+          value: {{ $db.username | default "user" | quote }}
+          {{- end }}
+        - name: DB_PASSWORD
+          {{- if and $db.existingSecret $db.existingSecretPasswordKey }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $db.existingSecret | default (include "vaultwarden.fullname" .) | quote }}
+              key: {{ $db.existingSecretPasswordKey | quote }}
+          {{- else }}
+          value: {{ $db.password | default "" | quote }}
+          {{- end }}
+        - name: DB_HOST
+          value: {{ $db.host | default "localhost" | quote }}
+        - name: DB_PORT
+          value: {{ include "vaultwarden.db.port" . | quote }}
+        - name: DB_NAME
+          value: {{ $db.dbName | default "vaultwarden" | quote }}
+        - name: DATABASE_URL
+          value: "{{ $scheme }}://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
         {{- end }}
       {{- end }}
     ports:
