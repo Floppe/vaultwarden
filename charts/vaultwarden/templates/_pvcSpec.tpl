@@ -2,6 +2,7 @@
 {{- if (or .Values.storage.data .Values.storage.attachments) -}}
 volumeClaimTemplates:
   {{- with .Values.storage.data }}
+  {{- $modes := (default (list "ReadWriteOnce") (or .accessModes (ternary (list .accessMode) nil (hasKey . "accessMode")))) }}
   - metadata:
       name: {{ .name }}
       labels:
@@ -16,7 +17,9 @@ volumeClaimTemplates:
         {{- end }}
     spec:
       accessModes:
-        - {{ .accessMode | quote }}
+        {{- range $modes }}
+        - {{ . | quote }}
+        {{- end }}
       resources:
         requests:
           storage: {{ .size }}
@@ -25,6 +28,7 @@ volumeClaimTemplates:
       {{- end }}
   {{- end }}
   {{- with .Values.storage.attachments }}
+  {{- $modes := (default (list "ReadWriteOnce") (or .accessModes (ternary (list .accessMode) nil (hasKey . "accessMode")))) }}
   - metadata:
       name: {{ .name }}
       labels:
@@ -39,7 +43,9 @@ volumeClaimTemplates:
         {{- end }}
     spec:
       accessModes:
-        - {{ .accessMode | quote }}
+        {{- range $modes }}
+        - {{ . | quote }}
+        {{- end }}
       resources:
         requests:
           storage: {{ .size }}
