@@ -72,5 +72,4 @@ jobs:
           ct install \
             --target-branch "${CT_TARGET_BRANCH}" \
             --helm-extra-args="--timeout 5m" \
-            --helm-extra-set-args="--set=domain=https://warden.example.com:8443 \
-            --set=image.pullSecrets={}"
+            --helm-extra-set-args="--set=domain=https://warden.example.com:8443"
