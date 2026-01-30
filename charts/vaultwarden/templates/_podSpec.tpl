@@ -113,43 +113,43 @@ containers:
       {{- $db := .Values.database | default dict -}}
       {{- $scheme := include "vaultwarden.db.scheme" . -}}
       {{- if ne $scheme "default" }}
-        {{- if $db.uriOverride }}
-        - name: DATABASE_URL
-          value: {{ $db.uriOverride | quote }}
-        {{- else if and $db.existingSecret $db.existingSecretKey }}
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: {{ $db.existingSecret | quote }}
-              key: {{ $db.existingSecretKey | quote }}
+      {{- if $db.uriOverride }}
+      - name: DATABASE_URL
+        value: {{ $db.uriOverride | quote }}
+      {{- else if and $db.existingSecret $db.existingSecretKey }}
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: {{ $db.existingSecret | quote }}
+            key: {{ $db.existingSecretKey | quote }}
+      {{- else }}
+      - name: DB_USER
+        {{- if and $db.existingSecret $db.existingSecretUserKey }}
+        valueFrom:
+          secretKeyRef:
+            name: {{ $db.existingSecret | default (include "vaultwarden.fullname" .) | quote }}
+            key: {{ $db.existingSecretUserKey | quote }}
         {{- else }}
-        - name: DB_USER
-          {{- if and $db.existingSecret $db.existingSecretUserKey }}
-          valueFrom:
-            secretKeyRef:
-              name: {{ $db.existingSecret | default (include "vaultwarden.fullname" .) | quote }}
-              key: {{ $db.existingSecretUserKey | quote }}
-          {{- else }}
-          value: {{ $db.username | default "user" | quote }}
-          {{- end }}
-        - name: DB_PASSWORD
-          {{- if and $db.existingSecret $db.existingSecretPasswordKey }}
-          valueFrom:
-            secretKeyRef:
-              name: {{ $db.existingSecret | default (include "vaultwarden.fullname" .) | quote }}
-              key: {{ $db.existingSecretPasswordKey | quote }}
-          {{- else }}
-          value: {{ $db.password | default "" | quote }}
-          {{- end }}
-        - name: DB_HOST
-          value: {{ $db.host | default "localhost" | quote }}
-        - name: DB_PORT
-          value: {{ include "vaultwarden.db.port" . | quote }}
-        - name: DB_NAME
-          value: {{ $db.dbName | default "vaultwarden" | quote }}
-        - name: DATABASE_URL
-          value: "{{ $scheme }}://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
+        value: {{ $db.username | default "user" | quote }}
         {{- end }}
+      - name: DB_PASSWORD
+        {{- if and $db.existingSecret $db.existingSecretPasswordKey }}
+        valueFrom:
+          secretKeyRef:
+            name: {{ $db.existingSecret | default (include "vaultwarden.fullname" .) | quote }}
+            key: {{ $db.existingSecretPasswordKey | quote }}
+        {{- else }}
+        value: {{ $db.password | default "" | quote }}
+        {{- end }}
+      - name: DB_HOST
+        value: {{ $db.host | default "localhost" | quote }}
+      - name: DB_PORT
+        value: {{ include "vaultwarden.db.port" . | quote }}
+      - name: DB_NAME
+        value: {{ $db.dbName | default "vaultwarden" | quote }}
+      - name: DATABASE_URL
+        value: "{{ $scheme }}://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
+      {{- end }}
       {{- end }}
     ports:
       - containerPort: 8080

@@ -51,7 +51,9 @@ spec:
         {{- range $ingress.additionalHostnames }}
         - {{ . | quote }}
         {{- end }}
+      {{- if $ingress.tlsSecret }}
       secretName: {{ $ingress.tlsSecret }}
+      {{- end }}
   {{- end }}
   rules:
     {{- range $ingress.additionalHostnames }}
