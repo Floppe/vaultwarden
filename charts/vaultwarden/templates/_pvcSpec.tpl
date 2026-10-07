@@ -9,6 +9,9 @@ volumeClaimTemplates:
         app.kubernetes.io/component: vaultwarden
         app.kubernetes.io/name: {{ include "vaultwarden.fullname" $ }}
         app.kubernetes.io/instance: {{ include "vaultwarden.fullname" $ }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       annotations:
         meta.helm.sh/release-name: {{ $.Release.Name | quote }}
         meta.helm.sh/release-namespace: {{ $.Release.Namespace | quote }}
@@ -35,6 +38,9 @@ volumeClaimTemplates:
         app.kubernetes.io/component: vaultwarden
         app.kubernetes.io/name: {{ include "vaultwarden.fullname" $ }}
         app.kubernetes.io/instance: {{ include "vaultwarden.fullname" $ }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       annotations:
         meta.helm.sh/release-name: {{ $.Release.Name | quote }}
         meta.helm.sh/release-namespace: {{ $.Release.Namespace | quote }}
