@@ -2,6 +2,32 @@ apiVersion: v1
 entries:
   vaultwarden:
   - apiVersion: v2
+    appVersion: 1.37.5
+    created: "2026-11-05T08:16:43.69029043Z"
+    description: vaultwarden is an unofficial Bitwarden-compatible server written
+      in Rust
+    digest: 9e4939da5906f86da80fcd93cf711b9c8b4bc3ec28df41275ef1ee7649928518
+    keywords:
+    - Rust
+    - vaultwarden
+    kubeVersion: '>=1.12.0-0'
+    maintainers:
+    - email: floppe@floppe.eu.org
+      name: floppe
+      url: https://github.com/floppe
+    - email: lester@guerzon.net
+      name: guerzon
+      url: https://github.com/guerzon
+    name: vaultwarden
+    sources:
+    - https://github.com/floppe/vaultwarden
+    - https://github.com/guerzon/vaultwarden
+    - https://github.com/dani-garcia/vaultwarden
+    type: application
+    urls:
+    - https://github.com/Floppe/vaultwarden/releases/download/v0.46.4/vaultwarden-0.46.4.tgz
+    version: 0.46.4
+  - apiVersion: v2
     appVersion: 1.37.4
     created: "2026-10-07T05:50:10.552387992Z"
     description: vaultwarden is an unofficial Bitwarden-compatible server written
@@ -153,4 +179,4 @@ entries:
     urls:
     - https://github.com/Floppe/vaultwarden/releases/download/v0.34.6/vaultwarden-0.34.6.tgz
     version: 0.34.6
-generated: "2026-10-07T05:50:10.552404577Z"
+generated: "2026-11-05T08:16:43.690311362Z"
