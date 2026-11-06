@@ -36,10 +36,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Lowercase repository
-        run: |
-          echo "REPO=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         with:
@@ -51,7 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           test -d .cr-release-packages || { echo '.cr-release-packages does not exist'; exit 0; }
-          repo="ghcr.io/${{ github.repository }}"
+          repo="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
           for pkg in .cr-release-packages/*.tgz; do
             chart=$(helm show chart "$pkg" | sed -n 's/^name: //p')
             digest=$(helm push "$pkg" "oci://${repo}" 2>&1 | tee /dev/stderr | sed -n 's/^Digest: //p')
